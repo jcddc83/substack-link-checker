@@ -1,0 +1,3 @@
+# Example URLs
+https://yoursubstack.substack.com/p/example-1
+https://yoursubstack.substack.com/p/example-2
