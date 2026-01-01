@@ -1,6 +1,17 @@
 # Substack Broken Link Checker
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
 A fast, async Python tool to find broken links in your Substack newsletter archive.
+
+## Why This Tool?
+
+Checking broken links in your newsletter archive shouldn't cost $100+/month for tools like Semrush or Ahrefs. This free, open-source tool:
+
+- **Works with Substack's bot protection** - Uses your session cookie to authenticate as a logged-in user
+- **Handles large archives efficiently** - Async concurrent checking is 10-20x faster than sequential
+- **Tracks what you've already checked** - Incremental scanning means you only check new posts
 
 ## Features
 
@@ -33,6 +44,20 @@ pip install -r requirements.txt
 ```
 
 **Requirements**: Python 3.8+
+
+## Authentication (Optional)
+
+If Substack blocks your requests or you need to check paywalled content, use your session cookie:
+
+1. Log into your Substack in a browser
+2. Open Developer Tools (F12) → Application → Cookies
+3. Find the `substack.sid` cookie and copy its value
+4. Use it with the `--cookie` flag:
+
+```bash
+python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+    --cookie "your-substack-sid-cookie-value"
+```
 
 ## Usage
 
@@ -68,7 +93,7 @@ python substack_link_checker.py --base-url https://example.substack.com --year 2
 
 ```bash
 # Skip domains that block bots (assumed OK)
-python substack_link_checker.py ... --skip-domains wikipedia.org ko-fi.com
+python substack_link_checker.py ... --skip-domains wikipedia.org
 
 # Auto-flag domains as broken without checking
 python substack_link_checker.py ... --broken-domains old.defunct-site.com
@@ -86,6 +111,46 @@ python substack_link_checker.py --base-url https://example.substack.com \
     --url-file unchecked_posts.txt --history-file checked_posts.json
 ```
 
+## Example Output
+
+```
+$ python substack_link_checker.py --base-url https://example.substack.com --year 2024
+
+Substack Broken Link Checker
+==================================================
+Base URL: https://example.substack.com
+Concurrency: 10
+Max retries: 3
+Input: Sitemap
+Year: 2024
+==================================================
+
+Found 45 posts from 2024
+[1/45] Processing: https://example.substack.com/p/my-first-post
+  Checking 12 links (10 new, 2 cached)...
+  Found 1 broken links in this post
+
+[2/45] Processing: https://example.substack.com/p/another-post
+  Checking 8 links (6 new, 2 cached)...
+  Found 0 broken links in this post
+...
+
+Completed in 34.2 seconds
+
+==================================================
+SUMMARY
+==================================================
+Total links checked: 234
+Links skipped (assumed OK): 8
+Links auto-flagged broken: 0
+Cache hits: 45
+Retries performed: 3
+Broken links found: 5
+
+Generating report: broken_links_report.csv
+Report generated with 5 broken links
+```
+
 ## CLI Options
 
 | Option | Short | Description |
@@ -101,6 +166,7 @@ python substack_link_checker.py --base-url https://example.substack.com \
 | `--only-new` | | Only check posts not in history |
 | `--skip-domains` | `-S` | Domains to skip (assumed OK) |
 | `--broken-domains` | `-B` | Domains to auto-flag as broken |
+| `--cookie` | `-C` | Substack session cookie for authentication |
 | `--verbose` | `-v` | Show detailed progress |
 | `--limit` | `-l` | Max posts to check |
 

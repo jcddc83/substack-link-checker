@@ -78,7 +78,6 @@ class SubstackLinkChecker:
     DEFAULT_SKIP_DOMAINS = [
         'wikipedia.org',
         'en.wikipedia.org',
-        'ko-fi.com',
     ]
 
     def __init__(
@@ -90,7 +89,8 @@ class SubstackLinkChecker:
         retry_delay: float = 1.0,
         verbose: bool = False,
         skip_domains: Optional[List[str]] = None,
-        broken_domains: Optional[List[str]] = None
+        broken_domains: Optional[List[str]] = None,
+        cookie: Optional[str] = None
     ):
         """
         Initialize the link checker.
@@ -104,6 +104,7 @@ class SubstackLinkChecker:
             verbose: Enable verbose output
             skip_domains: List of domains to skip checking and assume OK (e.g., ['wikipedia.org'])
             broken_domains: List of domains to auto-flag as broken without checking (e.g., ['local.example.com'])
+            cookie: Substack session cookie (substack.sid) for authenticated access
         """
         self.base_url = base_url.rstrip('/')
         self.timeout = timeout
@@ -117,6 +118,10 @@ class SubstackLinkChecker:
         # Synchronous session for sitemap/post fetching
         self.session = requests.Session()
         self.session.headers.update(self.DEFAULT_HEADERS)
+
+        # Set authentication cookie if provided
+        if cookie:
+            self.session.cookies.set('substack.sid', cookie, domain='.substack.com')
 
         # Global link cache: url -> LinkCheckResult
         self.link_cache: Dict[str, LinkCheckResult] = {}
@@ -786,14 +791,18 @@ Examples:
     parser.add_argument(
         '--skip-domains', '-S',
         nargs='+',
-        default=['wikipedia.org', 'ko-fi.com'],
-        help='Domains to skip checking and assume OK (default: wikipedia.org ko-fi.com). Use --skip-domains none to check all.'
+        default=['wikipedia.org'],
+        help='Domains to skip checking and assume OK (default: wikipedia.org). Use --skip-domains none to check all.'
     )
     parser.add_argument(
         '--broken-domains', '-B',
         nargs='+',
         default=[],
         help='Domains to auto-flag as broken without checking (e.g., local.example.com)'
+    )
+    parser.add_argument(
+        '--cookie', '-C',
+        help='Substack session cookie (substack.sid) for authenticated access to paywalled content'
     )
 
     return parser.parse_args()
@@ -820,7 +829,8 @@ def main():
         max_retries=args.max_retries,
         verbose=args.verbose,
         skip_domains=skip_domains,
-        broken_domains=broken_domains
+        broken_domains=broken_domains,
+        cookie=args.cookie
     )
 
     checker.run(

@@ -81,17 +81,37 @@ Use the PowerShell script with Task Scheduler:
    - Program: `powershell.exe`
    - Arguments: `-ExecutionPolicy Bypass -File "C:\path\to\run_link_checker.ps1"`
 
+## Authentication
+
+If Substack blocks your requests or you need to access paywalled content, authenticate using your session cookie:
+
+### Getting Your Cookie
+
+1. Log into your Substack in a browser
+2. Open Developer Tools (F12)
+3. Go to **Application** → **Cookies** → your Substack domain
+4. Find `substack.sid` and copy its value
+
+### Using the Cookie
+
+```bash
+python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+    --cookie "your-long-cookie-value-here"
+```
+
+The cookie authenticates you as a logged-in user, bypassing bot protection.
+
 ## Domain Filtering
 
 ### Skipping Bot-Blocking Sites
 
-Some sites (Wikipedia, Ko-fi) block automated requests. Skip them to avoid false positives:
+Some sites (like Wikipedia) block automated requests. Skip them to avoid false positives:
 
 ```bash
-python substack_link_checker.py ... --skip-domains wikipedia.org ko-fi.com
+python substack_link_checker.py ... --skip-domains wikipedia.org
 ```
 
-These links are assumed OK and not checked. Default: `wikipedia.org ko-fi.com`
+These links are assumed OK and not checked. Default: `wikipedia.org`
 
 To check all domains:
 ```bash
