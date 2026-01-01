@@ -59,6 +59,8 @@ python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024
     --cookie "your-substack-sid-cookie-value"
 ```
 
+**Note:** Your session cookie expires after a few weeks. If you start getting 403 errors, get a fresh cookie from your browser.
+
 ## Usage
 
 ### Basic Usage
@@ -165,7 +167,9 @@ Report generated with 5 broken links
 | `--history-file` | `-H` | JSON file for tracking checked posts |
 | `--only-new` | | Only check posts not in history |
 | `--skip-domains` | `-S` | Domains to skip (assumed OK) |
+| `--skip-domains-file` | | File with domains to skip (one per line) |
 | `--broken-domains` | `-B` | Domains to auto-flag as broken |
+| `--broken-domains-file` | | File with domains to auto-flag (one per line) |
 | `--cookie` | `-C` | Substack session cookie for authentication |
 | `--verbose` | `-v` | Show detailed progress |
 | `--limit` | `-l` | Max posts to check |

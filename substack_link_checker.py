@@ -795,10 +795,18 @@ Examples:
         help='Domains to skip checking and assume OK (default: wikipedia.org). Use --skip-domains none to check all.'
     )
     parser.add_argument(
+        '--skip-domains-file',
+        help='File containing domains to skip (one per line)'
+    )
+    parser.add_argument(
         '--broken-domains', '-B',
         nargs='+',
         default=[],
         help='Domains to auto-flag as broken without checking (e.g., local.example.com)'
+    )
+    parser.add_argument(
+        '--broken-domains-file',
+        help='File containing domains to auto-flag as broken (one per line)'
     )
     parser.add_argument(
         '--cookie', '-C',
@@ -806,6 +814,25 @@ Examples:
     )
 
     return parser.parse_args()
+
+
+def load_domains_from_file(file_path: str) -> List[str]:
+    """Load domains from a text file (one domain per line)."""
+    domains = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                # Skip empty lines and comments
+                if line and not line.startswith('#'):
+                    domains.append(line)
+        return domains
+    except FileNotFoundError:
+        print(f"Warning: Domain file not found: {file_path}")
+        return []
+    except IOError as e:
+        print(f"Warning: Error reading domain file: {e}")
+        return []
 
 
 def main():
@@ -818,9 +845,19 @@ def main():
         sys.exit(1)
 
     # Handle skip_domains: 'none' means check all domains
-    skip_domains = None if args.skip_domains == ['none'] else args.skip_domains
-    # Handle broken_domains: empty list means no domains auto-flagged
-    broken_domains = args.broken_domains if args.broken_domains else None
+    # Merge command-line domains with file domains
+    skip_domains = [] if args.skip_domains == ['none'] else list(args.skip_domains)
+    if args.skip_domains_file:
+        file_domains = load_domains_from_file(args.skip_domains_file)
+        skip_domains.extend(file_domains)
+    skip_domains = skip_domains if skip_domains else None
+
+    # Handle broken_domains: merge command-line with file
+    broken_domains = list(args.broken_domains) if args.broken_domains else []
+    if args.broken_domains_file:
+        file_domains = load_domains_from_file(args.broken_domains_file)
+        broken_domains.extend(file_domains)
+    broken_domains = broken_domains if broken_domains else None
 
     checker = SubstackLinkChecker(
         base_url=args.base_url,

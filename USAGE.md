@@ -83,23 +83,28 @@ Use the PowerShell script with Task Scheduler:
 
 ## Authentication
 
-If Substack blocks your requests or you need to access paywalled content, authenticate using your session cookie:
+If Substack blocks your requests or you need to access paywalled content, authenticate using your session cookie.
 
 ### Getting Your Cookie
 
 1. Log into your Substack in a browser
-2. Open Developer Tools (F12)
-3. Go to **Application** → **Cookies** → your Substack domain
-4. Find `substack.sid` and copy its value
+2. Navigate to your Substack homepage
+3. Open Developer Tools (F12)
+4. Go to **Application** → **Cookies** → your Substack domain
+5. Find `substack.sid` and copy its entire value
 
 ### Using the Cookie
 
 ```bash
 python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
-    --cookie "your-long-cookie-value-here"
+    --cookie "your-substack-sid-cookie-value"
 ```
 
 The cookie authenticates you as a logged-in user, bypassing bot protection.
+
+### Cookie Expiration
+
+Your session cookie will eventually expire (usually after a few weeks). If you start getting 403 errors or blocked requests, get a fresh cookie from your browser using the steps above.
 
 ## Domain Filtering
 
@@ -108,12 +113,16 @@ The cookie authenticates you as a logged-in user, bypassing bot protection.
 Some sites (like Wikipedia) block automated requests. Skip them to avoid false positives:
 
 ```bash
+# Skip a single domain
 python substack_link_checker.py ... --skip-domains wikipedia.org
+
+# Skip multiple domains
+python substack_link_checker.py ... --skip-domains wikipedia.org archive.org nytimes.com
 ```
 
 These links are assumed OK and not checked. Default: `wikipedia.org`
 
-To check all domains:
+To check all domains (no skipping):
 ```bash
 python substack_link_checker.py ... --skip-domains none
 ```
@@ -128,19 +137,56 @@ python substack_link_checker.py ... --broken-domains old.defunct-site.com local.
 
 These links appear in the report as "Known broken domain" without being checked.
 
+### Using Domain List Files
+
+For large lists of domains, use a file instead of command-line arguments:
+
+**skip_domains.txt:**
+```text
+# Domains to skip (assumed OK)
+# One domain per line, comments start with #
+
+wikipedia.org
+en.wikipedia.org
+archive.org
+nytimes.com
+wsj.com
+```
+
+**broken_domains.txt:**
+```text
+# Domains to auto-flag as broken
+local.myoldsite.com
+defunct-service.com
+```
+
+Then use the file flags:
+```bash
+python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+    --skip-domains-file skip_domains.txt \
+    --broken-domains-file broken_domains.txt
+```
+
+You can combine file and command-line domains - they'll be merged:
+```bash
+python substack_link_checker.py ... \
+    --skip-domains wikipedia.org \
+    --skip-domains-file more_skip_domains.txt
+```
+
 ## Importing Previous Results
 
 If you have results from previous runs in Excel or CSV format:
 
 ```bash
 # Import from Excel
-python import_checked_posts.py broken_links_nov.xlsx --history-file checked_posts.json
+python import_checked_posts.py your_report.xlsx --history-file checked_posts.json
 
 # Import from CSV
-python import_checked_posts.py broken_links_nov.csv --history-file checked_posts.json
+python import_checked_posts.py your_report.csv --history-file checked_posts.json
 ```
 
-This adds the post URLs to your history so they won't be re-checked.
+The file should have a "Post URL" column. This adds those URLs to your history so they won't be re-checked.
 
 ## Performance Tuning
 
@@ -202,25 +248,61 @@ Broken links found: 7
 | Broken Link | The broken URL |
 | Error Type | HTTP 404, DNS Failure, SSL Error, Timeout, etc. |
 
+## Security Considerations
+
+### Cookie Storage
+
+- **Don't commit your cookie** to version control. The `substack.sid` cookie grants full access to your Substack account.
+- If using automation (Task Scheduler), store the cookie in an environment variable or secure file, not in the script itself.
+- Regenerate your cookie if you suspect it was exposed.
+
+### Generated Files
+
+The `.gitignore` excludes sensitive generated files by default:
+- `checked_posts.json` - Contains your post URLs
+- `*.csv` - Reports may contain your content URLs
+- `logs/` - May contain cookie values in verbose output
+
 ## Troubleshooting
 
 ### "No posts found"
 
-- Check your `--base-url` is correct (include https://)
+- Check your `--base-url` is correct (include `https://`)
 - Try fetching the sitemap manually: `curl https://YOUR.substack.com/sitemap.xml`
+- Some Substacks have custom domains - use the actual URL you visit
+
+### 403 Forbidden / Access Denied
+
+- Substack may be blocking automated requests
+- Use the `--cookie` flag with your `substack.sid` cookie (see Authentication section)
+- Your cookie may have expired - get a fresh one from your browser
 
 ### High number of broken links
 
-- Some sites block automated requests → use `--skip-domains`
+- Some sites block automated requests → add them to `--skip-domains`
 - Try increasing `--timeout` for slow sites
-- Check with `--verbose` to see what's happening
+- Use `--verbose` to see what's happening
+- Check if the sites work in your browser
 
 ### Script is slow
 
-- Increase `--concurrency` (default: 10)
+- Increase `--concurrency` (default: 10) for faster parallel checking
 - Use `--history-file` with `--only-new` to skip already-checked posts
+- Large archives benefit most from incremental scanning
 
 ### SSL errors for valid sites
 
-- Some sites have certificate issues that browsers ignore
-- These are legitimate errors worth investigating
+- Some sites have certificate issues that browsers ignore but the script detects
+- These are legitimate issues worth investigating
+- If you trust the site, add it to `--skip-domains`
+
+### "Connection reset" or "Server disconnected"
+
+- The target server is rejecting automated requests
+- Try adding a delay by reducing `--concurrency` to 5 or lower
+- Add the domain to `--skip-domains` if it's a known bot-blocker
+
+### Import errors (pandas, aiohttp)
+
+- Make sure all dependencies are installed: `pip install -r requirements.txt`
+- For Excel import specifically: `pip install pandas openpyxl`
