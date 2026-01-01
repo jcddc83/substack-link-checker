@@ -361,10 +361,6 @@ class SubstackLinkChecker:
         Returns: (is_broken, error_type, should_retry)
         """
         try:
-            # Special case: known problematic domains
-            if 'local.theonion.com' in link:
-                return True, "SSL Error (local.theonion.com)", False
-
             async with session.get(
                 link,
                 timeout=aiohttp.ClientTimeout(total=self.timeout),

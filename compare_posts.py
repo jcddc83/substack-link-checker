@@ -32,9 +32,14 @@ def load_history(history_file):
         return set()
 
 def main():
-    base_url = sys.argv[1] if len(sys.argv) > 1 else "https://onion20.substack.com"
+    if len(sys.argv) < 2:
+        print("Usage: python compare_posts.py <substack-url> [history-file]")
+        print("Example: python compare_posts.py https://example.substack.com checked_posts.json")
+        sys.exit(1)
+
+    base_url = sys.argv[1]
     history_file = sys.argv[2] if len(sys.argv) > 2 else "checked_posts.json"
-    
+
     print(f"Fetching posts from {base_url}/sitemap.xml...")
     sitemap_posts = get_sitemap_posts(base_url)
     checked_posts = load_history(history_file)

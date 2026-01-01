@@ -111,8 +111,8 @@ def main():
     )
     parser.add_argument(
         '--date',
-        default='2024-11-10T00:00:00',
-        help='Date to use for imported posts (default: 2024-11-10)'
+        default=datetime.now().strftime('%Y-%m-%dT00:00:00'),
+        help='Date to use for imported posts (default: today)'
     )
 
     args = parser.parse_args()
