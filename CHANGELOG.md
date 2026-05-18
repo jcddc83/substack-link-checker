@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Issue and pull request templates under `.github/`.
 - Dependabot configuration for weekly dependency and Actions updates.
 - `.env.example` documenting the supported environment variables.
+- Release automation workflow (`.github/workflows/release.yml`): on
+  pushing a `v*.*.*` tag, builds the sdist and wheel from
+  `pyproject.toml` and attaches them to the GitHub Release. Verifies the
+  tag matches the project version to prevent mismatched artifacts.
 
 ### Security
 - `SUBSTACK_COOKIE` environment variable is now supported as a safer
