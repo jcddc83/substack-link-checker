@@ -10,14 +10,23 @@ cd substack-broken-link-checker
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
+
+# Optional but recommended: install pre-commit hooks so the same lint
+# checks CI runs fire automatically before each commit.
+pip install pre-commit
+pre-commit install
 ```
 
 ## Before opening a PR
 
-- Run the linter: `ruff check .`
-- Run the formatter: `ruff format .`
-- Run the tests: `pytest`
-- Verify the CLI still launches: `python substack_link_checker.py --help`
+If you installed pre-commit (above), the lint/format checks run on every
+commit. Otherwise run them yourself:
+
+- `ruff check .` — lint
+- `ruff format .` — auto-format
+- `pre-commit run --all-files` — runs everything pre-commit would
+- `pytest` — test suite
+- `python substack_link_checker.py --help` — smoke-test the CLI
 
 ## Filing issues
 
