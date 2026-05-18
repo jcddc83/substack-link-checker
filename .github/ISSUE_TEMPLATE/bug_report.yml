@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a problem with the link checker
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug! **Do not include your
+        Substack session cookie** anywhere in this report. Redact it from
+        any commands or logs you paste.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran
+      description: Paste the command (with cookie value redacted as `REDACTED`).
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output / error
+      description: Full output or stack trace. Redact any cookie values.
+      render: shell
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "e.g. 3.11.5"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "e.g. macOS 14.4, Ubuntu 22.04, Windows 11"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Tool version / commit
+      placeholder: "e.g. 0.1.0 or commit hash"

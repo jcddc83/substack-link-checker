@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/jcddc83/substack-broken-link-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/jcddc83/substack-broken-link-checker/actions/workflows/ci.yml)
 
 A fast, async Python tool to find broken links in your Substack newsletter archive.
 
@@ -38,9 +39,15 @@ python substack_link_checker.py --base-url https://YOUR.substack.com --url-file 
 ## Installation
 
 ```bash
-git clone https://github.com/jcddc83/substack-link-checker.git
-cd substack-link-checker
+git clone https://github.com/jcddc83/substack-broken-link-checker.git
+cd substack-broken-link-checker
 pip install -r requirements.txt
+```
+
+Or install as a package (provides a `substack-link-checker` CLI):
+
+```bash
+pip install git+https://github.com/jcddc83/substack-broken-link-checker.git
 ```
 
 **Requirements**: Python 3.8+
@@ -209,4 +216,4 @@ MIT License - see [LICENSE](LICENSE) file.
 
 ## Contributing
 
-Issues and pull requests welcome at [github.com/jcddc83/substack-link-checker](https://github.com/jcddc83/substack-link-checker).
+Issues and pull requests welcome at [github.com/jcddc83/substack-broken-link-checker](https://github.com/jcddc83/substack-broken-link-checker). See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [SECURITY.md](SECURITY.md) for reporting security issues.

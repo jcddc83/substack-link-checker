@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "substack-broken-link-checker"
+version = "0.1.0"
+description = "A fast, async Python tool to find broken links in your Substack newsletter archive."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+authors = [{ name = "jcddc83" }]
+keywords = ["substack", "link-checker", "broken-links", "async", "newsletter", "seo"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "aiohttp>=3.9.0",
+    "beautifulsoup4>=4.12.0",
+    "requests>=2.31.0",
+    "lxml>=4.9.0",
+    "openpyxl>=3.1.0",
+    "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jcddc83/substack-broken-link-checker"
+Issues = "https://github.com/jcddc83/substack-broken-link-checker/issues"
+Repository = "https://github.com/jcddc83/substack-broken-link-checker"
+
+[project.scripts]
+substack-link-checker = "substack_link_checker:main"
+
+[tool.setuptools]
+py-modules = [
+    "substack_link_checker",
+    "compare_posts",
+    "demo_link_checker",
+    "fetch_archive_urls",
+    "import_checked_posts",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
