@@ -34,6 +34,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   / private-key hooks before each commit. `CONTRIBUTING.md` updated
   with install instructions.
 
+### Changed
+- **Repository layout: scripts → package.** The top-level scripts have
+  been reorganised into a `substack_link_checker` package under `src/`
+  (src-layout). A new unified `substack-link-checker` CLI exposes the
+  five workflows as subcommands: `check`, `compare`, `import`,
+  `fetch-archive`, and `demo`.
+- The helper scripts at the root (`compare_posts.py`,
+  `import_checked_posts.py`, `fetch_archive_urls.py`,
+  `demo_link_checker.py`) are kept as thin back-compat shims that
+  delegate to the package, so existing `python compare_posts.py ...`
+  invocations and the bundled `run_link_checker.ps1` keep working.
+- **Breaking:** `python substack_link_checker.py ...` no longer works
+  (its filename collides with the new package name). Use
+  `substack-link-checker check ...` or
+  `python -m substack_link_checker check ...` instead. The PowerShell
+  scheduled task has been updated accordingly. See the "Migrating from
+  v1.0.0" section in `README.md` for the full mapping.
+
 ### Security
 - `SUBSTACK_COOKIE` environment variable is now supported as a safer
   alternative to the `--cookie` CLI flag (which leaks the cookie into

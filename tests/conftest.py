@@ -1,8 +1,5 @@
-"""Pytest configuration: make the top-level scripts importable."""
+"""Pytest configuration.
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+The `substack_link_checker` package is expected to be installed in dev mode
+(`pip install -e .`) before running the tests. CI does this automatically.
+"""

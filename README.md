@@ -26,14 +26,14 @@ Checking broken links in your newsletter archive shouldn't cost $100+/month for 
 ## Quick Start
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install (provides the `substack-link-checker` CLI)
+pip install git+https://github.com/jcddc83/substack-broken-link-checker.git
 
 # Check all posts from 2024
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024
 
 # Check posts from a file
-python substack_link_checker.py --base-url https://YOUR.substack.com --url-file posts.txt
+substack-link-checker check --base-url https://YOUR.substack.com --url-file posts.txt
 ```
 
 ## Installation
@@ -41,16 +41,44 @@ python substack_link_checker.py --base-url https://YOUR.substack.com --url-file 
 ```bash
 git clone https://github.com/jcddc83/substack-broken-link-checker.git
 cd substack-broken-link-checker
-pip install -r requirements.txt
+pip install -e .
 ```
 
-Or install as a package (provides a `substack-link-checker` CLI):
+Or directly from GitHub:
 
 ```bash
 pip install git+https://github.com/jcddc83/substack-broken-link-checker.git
 ```
 
+This installs the `substack-link-checker` console command. Equivalent
+invocations:
+
+- `substack-link-checker check ...`
+- `python -m substack_link_checker check ...`
+
 **Requirements**: Python 3.8+
+
+### Migrating from v1.0.0
+
+`v1.0.0` shipped flat scripts at the repo root. They have been
+reorganised into a `substack_link_checker` package with a subcommand CLI.
+
+| Old (v1.0.0) | New |
+|---|---|
+| `python substack_link_checker.py ...` | `substack-link-checker check ...` |
+| `python compare_posts.py ...` | `substack-link-checker compare ...` |
+| `python import_checked_posts.py ...` | `substack-link-checker import ...` |
+| `python fetch_archive_urls.py ...` | `substack-link-checker fetch-archive ...` |
+| `python demo_link_checker.py` | `substack-link-checker demo` |
+
+The four helper scripts (`compare_posts.py`, `import_checked_posts.py`,
+`fetch_archive_urls.py`, `demo_link_checker.py`) are kept at the root as
+thin back-compat shims, so existing `python compare_posts.py ...`
+invocations and the bundled PowerShell scheduled task continue to work.
+The main `substack_link_checker.py` script could not be kept as a shim
+because its name collides with the new package — use
+`substack-link-checker check ...` or `python -m substack_link_checker check ...`
+instead.
 
 ## Authentication (Optional)
 
@@ -64,10 +92,10 @@ If Substack blocks your requests or you need to check paywalled content, use you
 ```bash
 # Recommended: env var (keeps cookie out of shell history / ps aux)
 export SUBSTACK_COOKIE="your-substack-sid-cookie-value"
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024
 
 # Alternative: --cookie flag (visible in process listings)
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024 \
     --cookie "your-substack-sid-cookie-value"
 ```
 
@@ -83,13 +111,13 @@ so it does not end up in your shell history or in `ps aux`. See
 
 ```bash
 # Check posts from a specific year (uses sitemap)
-python substack_link_checker.py --base-url https://example.substack.com --year 2024
+substack-link-checker check --base-url https://example.substack.com --year 2024
 
 # Check posts from a URL file
-python substack_link_checker.py --base-url https://example.substack.com --url-file posts.txt
+substack-link-checker check --base-url https://example.substack.com --url-file posts.txt
 
 # Verbose output with custom report name
-python substack_link_checker.py --base-url https://example.substack.com --year 2024 \
+substack-link-checker check --base-url https://example.substack.com --year 2024 \
     --verbose --output december_report.csv
 ```
 
@@ -99,11 +127,11 @@ Track which posts you've already checked to avoid re-scanning:
 
 ```bash
 # First run: checks all posts, saves history
-python substack_link_checker.py --base-url https://example.substack.com --year 2024 \
+substack-link-checker check --base-url https://example.substack.com --year 2024 \
     --history-file checked_posts.json
 
 # Subsequent runs: only check new posts
-python substack_link_checker.py --base-url https://example.substack.com --year 2024 \
+substack-link-checker check --base-url https://example.substack.com --year 2024 \
     --history-file checked_posts.json --only-new
 ```
 
@@ -111,28 +139,28 @@ python substack_link_checker.py --base-url https://example.substack.com --year 2
 
 ```bash
 # Skip domains that block bots (assumed OK)
-python substack_link_checker.py ... --skip-domains wikipedia.org
+substack-link-checker check ... --skip-domains wikipedia.org
 
 # Auto-flag domains as broken without checking
-python substack_link_checker.py ... --broken-domains old.defunct-site.com
+substack-link-checker check ... --broken-domains old.defunct-site.com
 ```
 
 ### Finding Unchecked Posts
 
 ```bash
 # Compare your sitemap against history to find unchecked posts
-python compare_posts.py https://example.substack.com checked_posts.json
+substack-link-checker compare https://example.substack.com checked_posts.json
 # Outputs: unchecked_posts.txt
 
 # Then check just those posts
-python substack_link_checker.py --base-url https://example.substack.com \
+substack-link-checker check --base-url https://example.substack.com \
     --url-file unchecked_posts.txt --history-file checked_posts.json
 ```
 
 ## Example Output
 
 ```
-$ python substack_link_checker.py --base-url https://example.substack.com --year 2024
+$ substack-link-checker check --base-url https://example.substack.com --year 2024
 
 Substack Broken Link Checker
 ==================================================
@@ -190,15 +218,16 @@ Report generated with 5 broken links
 | `--verbose` | `-v` | Show detailed progress |
 | `--limit` | `-l` | Max posts to check |
 
-## Helper Scripts
+## Subcommands
 
-| Script | Purpose |
+| Command | Purpose |
 |--------|---------|
-| `compare_posts.py` | Find posts not yet checked (sitemap vs history) |
-| `import_checked_posts.py` | Import previous results from Excel/CSV |
-| `fetch_archive_urls.py` | Extract URLs from archive page (fallback) |
-| `run_link_checker.ps1` | Windows Task Scheduler automation |
-| `demo_link_checker.py` | Test the checker with sample URLs |
+| `substack-link-checker check` | Main link checker (the command shown throughout this README) |
+| `substack-link-checker compare` | Find posts not yet checked (sitemap vs history) |
+| `substack-link-checker import` | Import previous results from Excel/CSV into history |
+| `substack-link-checker fetch-archive` | Extract URLs from the `/archive` page (fallback when the sitemap doesn't work) |
+| `substack-link-checker demo` | Self-contained demo against a handful of known-good/bad URLs |
+| `run_link_checker.ps1` | Windows Task Scheduler automation (PowerShell) |
 
 ## Output
 

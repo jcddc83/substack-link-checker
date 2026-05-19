@@ -14,6 +14,11 @@ $PROJECT_DIR = "C:\path\to\substack-link-checker"      # Where you cloned this r
 
 Set-Location $PROJECT_DIR
 
+# Put src/ on PYTHONPATH so `python -m substack_link_checker` resolves the
+# package directly from a `git clone` checkout, without requiring the user
+# to have run `pip install -e .` first.
+$env:PYTHONPATH = (Join-Path $PROJECT_DIR "src") + ";" + $env:PYTHONPATH
+
 # Create logs and reports directories if they don't exist
 New-Item -ItemType Directory -Force -Path "logs" | Out-Null
 New-Item -ItemType Directory -Force -Path "reports" | Out-Null
@@ -31,11 +36,11 @@ Write-Host "=========================================="
 
 # Step 1: Compare sitemap against history to find new posts
 Write-Host "`nStep 1: Finding new posts..."
-python compare_posts.py $SUBSTACK_URL checked_posts.json
+python -m substack_link_checker compare $SUBSTACK_URL checked_posts.json
 
 # Step 2: Check the unchecked posts (--only-new ensures we skip any already in history)
 Write-Host "`nStep 2: Checking unchecked posts for broken links..."
-python substack_link_checker.py --base-url $SUBSTACK_URL --url-file unchecked_posts.txt --history-file checked_posts.json --only-new --output "reports\broken_links_$timestamp.csv" --verbose
+python -m substack_link_checker check --base-url $SUBSTACK_URL --url-file unchecked_posts.txt --history-file checked_posts.json --only-new --output "reports\broken_links_$timestamp.csv" --verbose
 
 Write-Host "`n=========================================="
 Write-Host "Completed: $(Get-Date)"

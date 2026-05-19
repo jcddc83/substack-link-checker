@@ -48,16 +48,13 @@ Issues = "https://github.com/jcddc83/substack-broken-link-checker/issues"
 Repository = "https://github.com/jcddc83/substack-broken-link-checker"
 
 [project.scripts]
-substack-link-checker = "substack_link_checker:main"
+substack-link-checker = "substack_link_checker.cli:main"
 
 [tool.setuptools]
-py-modules = [
-    "substack_link_checker",
-    "compare_posts",
-    "demo_link_checker",
-    "fetch_archive_urls",
-    "import_checked_posts",
-]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 100
@@ -70,3 +67,8 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+# Use importlib mode so pytest does not prepend the project root to
+# sys.path. We want imports of `substack_link_checker` to resolve to the
+# installed package under src/, not to the top-level back-compat shim
+# `substack_link_checker.py`.
+addopts = "--import-mode=importlib"

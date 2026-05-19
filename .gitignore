@@ -3,6 +3,12 @@ __pycache__/
 *.pyo
 .env
 
+# Python packaging artifacts
+*.egg-info/
+build/
+dist/
+*.egg
+
 # Generated files
 *.csv
 checked_posts.json

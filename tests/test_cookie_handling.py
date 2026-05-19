@@ -64,14 +64,14 @@ def test_repr_does_not_leak_cookie():
 
 
 def test_env_var_used_when_cli_flag_absent(monkeypatch, tmp_path):
-    """`main()` should read SUBSTACK_COOKIE when --cookie is not passed."""
-    import substack_link_checker as m
+    """The check CLI should read SUBSTACK_COOKIE when --cookie is not passed."""
+    from substack_link_checker import _cli_check
 
     monkeypatch.setenv("SUBSTACK_COOKIE", COOKIE_SENTINEL)
     monkeypatch.setattr(
         "sys.argv",
         [
-            "substack_link_checker.py",
+            "substack-link-checker check",
             "--base-url",
             "https://example.substack.com",
             "--url-file",
@@ -89,20 +89,20 @@ def test_env_var_used_when_cli_flag_absent(monkeypatch, tmp_path):
         def run(self, **kwargs):
             pass
 
-    monkeypatch.setattr(m, "SubstackLinkChecker", FakeChecker)
-    m.main()
+    monkeypatch.setattr(_cli_check, "SubstackLinkChecker", FakeChecker)
+    _cli_check.main()
 
     assert captured["cookie"] == COOKIE_SENTINEL
 
 
 def test_cli_flag_overrides_env_var(monkeypatch, tmp_path):
-    import substack_link_checker as m
+    from substack_link_checker import _cli_check
 
     monkeypatch.setenv("SUBSTACK_COOKIE", "env-value")
     monkeypatch.setattr(
         "sys.argv",
         [
-            "substack_link_checker.py",
+            "substack-link-checker check",
             "--base-url",
             "https://example.substack.com",
             "--url-file",
@@ -122,7 +122,7 @@ def test_cli_flag_overrides_env_var(monkeypatch, tmp_path):
         def run(self, **kwargs):
             pass
 
-    monkeypatch.setattr(m, "SubstackLinkChecker", FakeChecker)
-    m.main()
+    monkeypatch.setattr(_cli_check, "SubstackLinkChecker", FakeChecker)
+    _cli_check.main()
 
     assert captured["cookie"] == "cli-value"

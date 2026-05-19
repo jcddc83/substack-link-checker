@@ -11,7 +11,7 @@ The tool needs to know which posts to check. There are several ways to provide t
 Substack automatically generates a sitemap with all your posts. Just specify the year:
 
 ```bash
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024
 ```
 
 This fetches `https://YOUR.substack.com/sitemap.xml` and extracts all post URLs from that year.
@@ -22,11 +22,11 @@ Omit the year to check everything (may take a while for large archives):
 
 ```bash
 # First, get all post URLs from sitemap
-python compare_posts.py https://YOUR.substack.com
+substack-link-checker compare https://YOUR.substack.com
 # This creates unchecked_posts.txt with all posts
 
 # Then check them
-python substack_link_checker.py --base-url https://YOUR.substack.com \
+substack-link-checker check --base-url https://YOUR.substack.com \
     --url-file unchecked_posts.txt
 ```
 
@@ -42,7 +42,7 @@ https://YOUR.substack.com/p/third-post
 
 Then run:
 ```bash
-python substack_link_checker.py --base-url https://YOUR.substack.com --url-file posts.txt
+substack-link-checker check --base-url https://YOUR.substack.com --url-file posts.txt
 ```
 
 ## Recommended Workflow: Incremental Scanning
@@ -53,7 +53,7 @@ For ongoing maintenance, track which posts you've already checked:
 
 ```bash
 # First run: check all posts from 2024, save history
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024 \
     --history-file checked_posts.json
 ```
 
@@ -61,10 +61,10 @@ python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024
 
 ```bash
 # Find new posts not in history
-python compare_posts.py https://YOUR.substack.com checked_posts.json
+substack-link-checker compare https://YOUR.substack.com checked_posts.json
 
 # Check only the new ones
-python substack_link_checker.py --base-url https://YOUR.substack.com \
+substack-link-checker check --base-url https://YOUR.substack.com \
     --url-file unchecked_posts.txt \
     --history-file checked_posts.json \
     --only-new
@@ -96,7 +96,7 @@ If Substack blocks your requests or you need to access paywalled content, authen
 ### Using the Cookie
 
 ```bash
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024 \
     --cookie "your-substack-sid-cookie-value"
 ```
 
@@ -114,17 +114,17 @@ Some sites (like Wikipedia) block automated requests. Skip them to avoid false p
 
 ```bash
 # Skip a single domain
-python substack_link_checker.py ... --skip-domains wikipedia.org
+substack-link-checker check ... --skip-domains wikipedia.org
 
 # Skip multiple domains
-python substack_link_checker.py ... --skip-domains wikipedia.org archive.org nytimes.com
+substack-link-checker check ... --skip-domains wikipedia.org archive.org nytimes.com
 ```
 
 These links are assumed OK and not checked. Default: `wikipedia.org`
 
 To check all domains (no skipping):
 ```bash
-python substack_link_checker.py ... --skip-domains none
+substack-link-checker check ... --skip-domains none
 ```
 
 ### Auto-Flagging Known Broken Domains
@@ -132,7 +132,7 @@ python substack_link_checker.py ... --skip-domains none
 If you know certain domains are always broken (e.g., defunct sites), flag them automatically:
 
 ```bash
-python substack_link_checker.py ... --broken-domains old.defunct-site.com local.test.com
+substack-link-checker check ... --broken-domains old.defunct-site.com local.test.com
 ```
 
 These links appear in the report as "Known broken domain" without being checked.
@@ -162,14 +162,14 @@ defunct-service.com
 
 Then use the file flags:
 ```bash
-python substack_link_checker.py --base-url https://YOUR.substack.com --year 2024 \
+substack-link-checker check --base-url https://YOUR.substack.com --year 2024 \
     --skip-domains-file skip_domains.txt \
     --broken-domains-file broken_domains.txt
 ```
 
 You can combine file and command-line domains - they'll be merged:
 ```bash
-python substack_link_checker.py ... \
+substack-link-checker check ... \
     --skip-domains wikipedia.org \
     --skip-domains-file more_skip_domains.txt
 ```
@@ -180,10 +180,10 @@ If you have results from previous runs in Excel or CSV format:
 
 ```bash
 # Import from Excel
-python import_checked_posts.py your_report.xlsx --history-file checked_posts.json
+substack-link-checker import your_report.xlsx --history-file checked_posts.json
 
 # Import from CSV
-python import_checked_posts.py your_report.csv --history-file checked_posts.json
+substack-link-checker import your_report.csv --history-file checked_posts.json
 ```
 
 The file should have a "Post URL" column. This adds those URLs to your history so they won't be re-checked.
@@ -196,7 +196,7 @@ Increase parallel requests for faster checking (be polite to servers):
 
 ```bash
 # Default is 10 concurrent requests
-python substack_link_checker.py ... --concurrency 20
+substack-link-checker check ... --concurrency 20
 ```
 
 ### Timeout
@@ -205,7 +205,7 @@ Increase timeout for slow sites:
 
 ```bash
 # Default is 10 seconds
-python substack_link_checker.py ... --timeout 30
+substack-link-checker check ... --timeout 30
 ```
 
 ### Limiting Posts
@@ -213,7 +213,7 @@ python substack_link_checker.py ... --timeout 30
 Test with a small batch first:
 
 ```bash
-python substack_link_checker.py ... --limit 5 --verbose
+substack-link-checker check ... --limit 5 --verbose
 ```
 
 ## Understanding the Output
