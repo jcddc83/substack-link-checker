@@ -41,7 +41,8 @@ jobs:
       - name: Import smoke test
         run: |
           python -c "import substack_link_checker; print('import OK')"
-          python substack_link_checker.py --help
+          substack-link-checker --help
+          substack-link-checker check --help
       - name: Run tests
         run: pytest -q
 

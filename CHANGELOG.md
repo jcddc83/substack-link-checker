@@ -71,6 +71,11 @@ the CLI invocation changes.
 - Troubleshooting section's code blocks now use the new
   `substack-link-checker check ...` invocations instead of the
   pre-refactor `python substack_link_checker.py ...` form.
+- CI smoke test step in `.github/workflows/ci.yml` was still running
+  `python substack_link_checker.py --help`, which started failing once
+  the package refactor removed that root-level file. Updated to invoke
+  the installed `substack-link-checker` console script instead. This
+  was also blocking the Dependabot PRs from going green.
 
 ## [1.0.0] - 2026-01-01
 
