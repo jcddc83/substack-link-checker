@@ -105,6 +105,77 @@ so it does not end up in your shell history or in `ps aux`. See
 
 **Note:** Your session cookie expires after a few weeks. If you start getting 403 errors, get a fresh cookie from your browser.
 
+## Troubleshooting
+
+Common failure modes and how to fix them:
+
+### `HTTP 403 Forbidden` when fetching the sitemap or post pages
+
+Substack's bot protection is rejecting unauthenticated requests. In
+order of likelihood:
+
+1. Set `SUBSTACK_COOKIE` (see [Authentication](#authentication-optional)
+   above) so you're requesting as a logged-in user.
+2. If you had a cookie set: it has probably expired (Substack rotates
+   session cookies every few weeks). Grab a fresh one from DevTools.
+3. If both are current: lower `--concurrency` (try `--concurrency 3`)
+   so you look less bot-like.
+
+### `Sitemap returns no posts for --year YYYY`
+
+The year-specific sitemap (e.g. `/sitemap-2024.xml`) doesn't exist for
+your Substack — some accounts only expose a single combined sitemap.
+Fall back to scraping the archive page:
+
+```bash
+python fetch_archive_urls.py https://YOUR.substack.com 2024
+# Produces archive_urls_2024.txt
+python substack_link_checker.py --base-url https://YOUR.substack.com \
+    --url-file archive_urls_2024.txt
+```
+
+### `DNS Failure` or `Timeout` for links that work in your browser
+
+The target site is rate-limiting or geo-blocking the checker, not
+actually broken. Add it to `--skip-domains` so it's assumed OK:
+
+```bash
+python substack_link_checker.py ... --skip-domains rate-limited.example.com
+```
+
+For a recurring list, put one domain per line in a file and pass
+`--skip-domains-file path/to/file.txt`.
+
+### `Connection Error: ...ssl:default` / `SSL Error`
+
+The target host is using an old TLS version Python's `ssl` module no
+longer accepts by default. Usually the right call is to flag the
+domain as broken (it really is unreachable from a modern client):
+
+```bash
+python substack_link_checker.py ... --broken-domains old-tls.example.com
+```
+
+### Many `Soft 404 (page title indicates error)` results that look fine
+
+The detector matches phrases like "page not found" in the page `<title>`.
+If a legitimate post happens to have one of those phrases in its title,
+it'll be misflagged. Open the report, eyeball the URL, and if it's
+genuinely live, ignore those rows.
+
+### The CSV report file is empty / has only a header
+
+Either no broken links were found (look for "No broken links found!"
+in the summary) or the run was interrupted before report generation.
+The tool only writes the CSV on a successful completion of all posts.
+
+### `--only-new` is not skipping anything
+
+Make sure `--history-file` points at the same JSON file you used on
+the previous run. The history file is the source of truth for which
+posts have already been checked; without it `--only-new` has nothing
+to compare against.
+
 ## Usage
 
 ### Basic Usage
